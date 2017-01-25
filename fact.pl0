@@ -1,0 +1,22 @@
+
+function fact(n)
+begin
+  if n = 1 then return 1
+  return n*fact(n-1);
+end;
+
+var x;
+begin
+  x := 1;
+
+  while x<10 do
+    begin
+      write x; 
+      write fact(x);
+      writeln;
+      x := x+1;
+    end;
+end.
+
+  
+
