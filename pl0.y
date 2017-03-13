@@ -9,10 +9,7 @@
 #include "table.h"
 #define FIRSTADDR 2
 
-extern int yylex(void);
-
 extern int warning(const char* s);
-extern void yyerror(const char* s);
 
 %}
 
@@ -140,26 +137,10 @@ COMMA	: ','
 
 %%
 
-int noError = 1;
-
 int warning(const char* s) {
   fprintf(stderr, "warn: %s\n", s);
   return 0;
 }
 
-void yyerror(const char* s) {
-  fprintf(stderr, "error: %s\n", s);
-  noError = 0;
-}
-
 void errorType(char* s)  { yyerror(s); }
 void errorF(char* s)     { yyerror(s); }
-
-int main(){
-  yyparse();
-  if (noError) {
-    listCode();
-    execute();
-  }
-  return 0;
-}

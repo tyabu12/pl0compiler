@@ -26,9 +26,9 @@ static void factor();           /* 式の因子のコンパイル               
 static void condition();        /* 条件式のコンパイル                   */
 static int isStBeginKey(Token t); /* トークンtは文の先頭のキーか？      */
 
-int compile() {
+int compile(FILE *fout) {
     int i;
-    printf("start compilation\n");
+    /* printf("start compilation\n"); */
     initSource();               /* getSourceの初期設定                  */
     token = nextToken();        /* 最初のトークン                       */
     blockBegin(FIRSTADDR);      /* これ以後の宣言は新しいブロックのもの */
@@ -37,7 +37,7 @@ int compile() {
     i = errorN();               /* エラーメッセージの個数               */
     if (i!=0)
         printf("%d errors\n", i);
-    listCode(); /* */              /* 目的コードのリスト（必要なら）       */
+    listCode(fout, 0);          /* 目的コードのリスト（必要なら）       */
     return i < MINERROR;        /* エラーメッセージの個数が少ないかどうかの判定 */
 }
 
@@ -59,14 +59,14 @@ void block(int pIndex) {        /* pIndex はこのブロックの関数名の�
             break;
         }
         break;
-    }           
+    }
     backPatch(backP);           /* 内部関数を飛び越す命令にパッチ       */
     changeV(pIndex, nextCode()); /* この関数の開始番地を修正            */
     genCodeV(ict, frameL());    /* このブロックの実行時の必要記憶域をとる命令 */
-    statement();                /* このブロックの主文                   */      
+    statement();                /* このブロックの主文                   */
     genCodeR();                 /* リターン命令                         */
     blockEnd();                 /* ブロックが終ったことをtableに連絡    */
-}   
+}
 
 void constDecl() {              /* 定数宣言のコンパイル                 */
     Token temp;
@@ -146,7 +146,7 @@ void funcDecl() {               /* 関数宣言のコンパイル               
         }
         block(fIndex);          /* ブロックのコンパイル、その関数名のインデックスを渡す */
         token = checkGet(token, Semicolon); /* 最後は";"のはず          */
-    } else 
+    } else
         errorMissingId();       /* 関数名がない                         */
 }
 
@@ -219,24 +219,24 @@ void statement() {              /* 文のコンパイル                       *
             token = nextToken();
             genCodeO(wrl);      /* 改行を出力するwrl命令                */
             return;
-        case End: 
+        case End:
         case Semicolon:         /* 空文を読んだことにして終り           */
             return;
         default:                /* 文の先頭のキーまで読み捨てる         */
             errorDelete();      /* 今読んだトークンを読み捨てる         */
             token = nextToken();
             continue;
-        }       
+        }
     }
 }
 
 int isStBeginKey(Token t) {     /* トークンtは文の先頭のキーか？        */
     switch (t.kind) {
-    case If: 
-    case Begin: 
+    case If:
+    case Begin:
     case Ret:
-    case While: 
-    case Write: 
+    case While:
+    case Write:
     case WriteLn:
         return 1;
     default:
@@ -312,7 +312,7 @@ void factor() {                 /* 式の因子のコンパイル               
                     }
                 } else
                     token = nextToken();
-                if (pars(tIndex) != i) 
+                if (pars(tIndex) != i)
                     errorMessage("\\#par"); /* pars(tIndex)は仮引数の個数 */
             } else {
                 errorInsert(Lparen);
@@ -330,16 +330,16 @@ void factor() {                 /* 式の因子のコンパイル               
         token = checkGet(token, Rparen);
     }
     switch (token.kind) {       /* 因子の後がまた因子ならエラー         */
-    case Id: 
-    case Num: 
+    case Id:
+    case Num:
     case Lparen:
         errorMissingOp();
         factor();
     default:
         return;
-    }   
+    }
 }
-    
+
 void condition() {              /* 条件式のコンパイル                   */
     KeyId k;
     if (token.kind == Odd) {
@@ -350,11 +350,11 @@ void condition() {              /* 条件式のコンパイル                  
         expression();
         k = token.kind;
         switch (k) {
-        case Equal: 
-        case Lss: 
+        case Equal:
+        case Lss:
         case Gtr:
-        case NotEq: 
-        case LssEq: 
+        case NotEq:
+        case LssEq:
         case GtrEq:
             break;
         default:
@@ -370,7 +370,7 @@ void condition() {              /* 条件式のコンパイル                  
         case NotEq: genCodeO(neq); break;
         case LssEq: genCodeO(lseq); break;
         case GtrEq: genCodeO(greq); break;
-        default: 
+        default:
             /* ishii */
             errorType("rel-op");
             break;

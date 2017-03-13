@@ -1,4 +1,5 @@
 %{
+#include <stdio.h>
 #include "y.tab.h"
   char *tname;
 %}
@@ -36,9 +37,6 @@ letter		[a-zA-Z]
                           yylval.name = tname;
                           return IDENT;		}
 {digit}+		{ yylval.val = atoi(yytext); return NUMBER; 	}
-[ \t\n\r]			
+[ \t\n\r]
 .			{ printf("Unknown token[%s]\n",yytext);}
 %%
-
-
-

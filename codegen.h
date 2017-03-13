@@ -1,6 +1,6 @@
 /*
  * codegen.h
- */ 
+ */
 
 typedef enum codes {            /* 命令語のコード                       */
     lit, opr, lod, sto, cal, ret, ict, jmp, jpc
@@ -18,5 +18,6 @@ int genCodeR();                 /* ret命令語の生成                      */
 void backPatch(int i);          /* 命令語のバックパッチ（次の番地を）   */
 
 int nextCode();                 /* 次の命令語のアドレスを返す           */
-void listCode();                /* 目的コード（命令語）のリスティング   */
+void listCode(FILE *fp, int showLineNumber); /* 目的コード（命令語）のリスティング */
+int readCode(FILE *fp);         /* 目的コード（命令語）の読み込み */
 void execute();                 /* 目的コード（命令語）の実行           */

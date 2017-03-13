@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "codegen.h"
 #ifndef TBL
 #   define TBL
@@ -27,7 +28,7 @@ typedef struct inst {           /* 命令語の型                           */
 static Inst code[MAXCODE];      /* 目的コードが入る                     */
 static int cIndex = -1;         /* 最後に生成した命令語のインデックス   */
 static void checkMax();         /* 目的コードのインデックスの増加とチェック */
-static void printCode(int i);   /* 命令語の印字                         */
+static void printCode(FILE *fp, int i); /* 命令語の印字 */
 
 int nextCode() {                /* 次の命令語のアドレスを返す           */
     return cIndex+1;
@@ -69,67 +70,145 @@ void checkMax() {               /* 目的コードのインデックスの増加
         return;
     errorF("too many code");
 }
-    
+
 void backPatch(int i) {         /* 命令語のバックパッチ（次の番地を）   */
     code[i].u.value = cIndex+1;
 }
 
-void listCode() {               /* 命令語のリスティング                 */
+void listCode(FILE *fp, int showLineNumber) { /* 命令語のリスティング */
     int i;
-    printf("\ncode\n");
+    if (fp == NULL) {
+      fp = stdin;
+      fprintf(stdout, "\ncode\n");
+    }
     for (i = 0; i <= cIndex; i++) {
-        printf("%3d: ", i);
-        printCode(i);
+        if (showLineNumber) fprintf(fp, "%3d: ", i);
+        printCode(fp, i);
     }
 }
 
-void printCode(int i) {         /* 命令語の印字                         */
+void printCode(FILE *fp, int i) { /* 命令語の印字 */
     int flag;
     switch (code[i].opCode) {
-    case lit: printf("lit"); flag=1; break;
-    case opr: printf("opr"); flag=3; break;
-    case lod: printf("lod"); flag=2; break;
-    case sto: printf("sto"); flag=2; break;
-    case cal: printf("cal"); flag=2; break;
-    case ret: printf("ret"); flag=2; break;
-    case ict: printf("ict"); flag=1; break;
-    case jmp: printf("jmp"); flag=1; break;
-    case jpc: printf("jpc"); flag=1; break;
+    case lit: fprintf(fp, "lit"); flag=1; break;
+    case opr: fprintf(fp, "opr"); flag=3; break;
+    case lod: fprintf(fp, "lod"); flag=2; break;
+    case sto: fprintf(fp, "sto"); flag=2; break;
+    case cal: fprintf(fp, "cal"); flag=2; break;
+    case ret: fprintf(fp, "ret"); flag=2; break;
+    case ict: fprintf(fp, "ict"); flag=1; break;
+    case jmp: fprintf(fp, "jmp"); flag=1; break;
+    case jpc: fprintf(fp, "jpc"); flag=1; break;
     }
     switch (flag) {
     case 1:
-        printf(",%d\n", code[i].u.value);
+        fprintf(fp, ",%d\n", code[i].u.value);
         return;
     case 2:
-        printf(",%d", code[i].u.addr.level);
-        printf(",%d\n", code[i].u.addr.addr);
+        fprintf(fp, ",%d", code[i].u.addr.level);
+        fprintf(fp, ",%d\n", code[i].u.addr.addr);
         return;
     case 3:
         switch (code[i].u.optr) {
-        case neg: printf(",neg\n"); return;
-        case add: printf(",add\n"); return;
-        case sub: printf(",sub\n"); return;
-        case mul: printf(",mul\n"); return;
-        case div: printf(",div\n"); return;
-        case odd: printf(",odd\n"); return;
-        case eq: printf(",eq\n"); return;
-        case ls: printf(",ls\n"); return;
-        case gr: printf(",gr\n"); return;
-        case neq: printf(",neq\n"); return;
-        case lseq: printf(",lseq\n"); return;
-        case greq: printf(",greq\n"); return;
-        case wrt: printf(",wrt\n"); return;
-        case wrl: printf(",wrl\n"); return;
+        case neg: fprintf(fp, ",neg\n"); return;
+        case add: fprintf(fp, ",add\n"); return;
+        case sub: fprintf(fp, ",sub\n"); return;
+        case mul: fprintf(fp, ",mul\n"); return;
+        case div: fprintf(fp, ",div\n"); return;
+        case odd: fprintf(fp, ",odd\n"); return;
+        case eq: fprintf(fp, ",eq\n"); return;
+        case ls: fprintf(fp, ",ls\n"); return;
+        case gr: fprintf(fp, ",gr\n"); return;
+        case neq: fprintf(fp, ",neq\n"); return;
+        case lseq: fprintf(fp, ",lseq\n"); return;
+        case greq: fprintf(fp, ",greq\n"); return;
+        case wrt: fprintf(fp, ",wrt\n"); return;
+        case wrl: fprintf(fp, ",wrl\n"); return;
         }
     }
-}   
+}
+
+int readCode(FILE *fp) {
+struct {
+  const char *name;
+  OpCode opCode;
+  int flag;
+} static const opTbl[] = {
+  { "lit", lit, 1 },
+  { "opr", opr, 3 },
+  { "lod", lod, 2 },
+  { "sto", sto, 2 },
+  { "cal", cal, 2 },
+  { "ret", ret, 2 },
+  { "ict", ict, 1 },
+  { "jmp", jmp, 1 },
+  { "jpc", jpc, 1 },
+  { NULL, }
+};
+struct {
+  const char *name;
+  Operator optr;
+} static const optrTbl[] = {
+  { "neg", neg },
+  { "add", add },
+	{ "sub", sub },
+	{ "mul", mul },
+	{ "div", div },
+	{ "odd", odd },
+	{ "eq", eq },
+	{ "ls", ls },
+	{ "gr", gr },
+	{ "neq", neq },
+	{ "lseq", lseq },
+	{ "greq", greq },
+	{ "wrt", wrt },
+	{ "wrl", wrl },
+  { NULL, }
+};
+    char s[256];
+    int op, optr, i;
+    for (i = 0; fgets(s, 256, fp) != NULL; i++) {
+        for (op = 0; opTbl[op].name != NULL; op++) {
+            if (strncmp(opTbl[op].name, s, 3) == 0)
+                break;
+        }
+        if (opTbl[op].name == NULL) {
+            fprintf(stderr, "Unknown op: %s\n", s);
+            return 1;
+        }
+        code[i].opCode = opTbl[op].opCode;
+        switch (opTbl[op].flag) {
+        case 1:
+            sscanf(s+4, "%d", &code[i].u.value);
+            break;
+        case 2:
+            sscanf(s+4, "%d,%d",
+                &code[i].u.addr.level, &code[i].u.addr.addr);
+            break;
+        case 3:
+            for (optr = 0; optrTbl[optr].name != NULL; optr++) {
+                if (strncmp(optrTbl[optr].name, s+4,
+                  strlen(optrTbl[optr].name)) == 0)
+                    break;
+            }
+            if (optrTbl[optr].name == NULL) {
+                fprintf(stderr, "Unknown operator: %s\n", s);
+                return 1;
+            }
+            code[i].u.optr = optrTbl[optr].optr;
+            break;
+        }
+    }
+    cIndex = i;
+    return 0;
+}
 
 void execute() {                /* 目的コード（命令語）の実行           */
     int stack[MAXMEM];          /* 実行時スタック                       */
     int display[MAXLEVEL];      /* 現在見える各ブロックの先頭番地のディスプレイ */
     int pc, top, lev, temp;
     Inst i;                     /* 実行する命令語                       */
-    printf("start execution\n");
+    /* printf("start execution\n"); */
     top = 0;  pc = 0;           /* top:次にスタックに入れる場所、pc:命令語のカウンタ */
     stack[0] = 0;  stack[1] = 0; /* stack[top]はcalleeで壊すディスプレイの退避場所 */
                                 /* stack[top+1]はcallerへの戻り番地     */
@@ -137,16 +216,16 @@ void execute() {                /* 目的コード（命令語）の実行      
     do {
         i = code[pc++];         /* これから実行する命令語               */
         switch (i.opCode) {
-        case lit: stack[top++] = i.u.value; 
+        case lit: stack[top++] = i.u.value;
             break;
-        case lod: stack[top++] = stack[display[i.u.addr.level] + i.u.addr.addr]; 
+        case lod: stack[top++] = stack[display[i.u.addr.level] + i.u.addr.addr];
             break;
-        case sto: stack[display[i.u.addr.level] + i.u.addr.addr] = stack[--top]; 
+        case sto: stack[display[i.u.addr.level] + i.u.addr.addr] = stack[--top];
             break;
         case cal: lev = i.u.addr.level +1; /* i.u.addr.levelはcalleeの名前のレベル */
                                 /* calleeのブロックのレベルlevはそれに＋１したもの */
             stack[top] = display[lev]; /* display[lev]の退避            */
-            stack[top+1] = pc; display[lev] = top; 
+            stack[top+1] = pc; display[lev] = top;
                                 /* 現在のtopがcalleeのブロックの先頭番地 */
             pc = i.u.addr.addr;
             break;
@@ -157,14 +236,14 @@ void execute() {                /* 目的コード（命令語）の実行      
             top -= i.u.addr.addr; /* 実引数の分だけトップを戻す         */
             stack[top++] = temp; /* 返す値をスタックのトップへ          */
             break;
-        case ict: top += i.u.value; 
+        case ict: top += i.u.value;
             if (top >= MAXMEM-MAXREG)
                 errorF("stack overflow");
             break;
         case jmp: pc = i.u.value; break;
         case jpc: if (stack[--top] == 0) pc = i.u.value;
             break;
-        case opr: 
+        case opr:
             switch (i.u.optr) {
             case neg: stack[top-1] = -stack[top-1]; continue;
             case add: --top;  stack[top-1] += stack[top]; continue;

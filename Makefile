@@ -1,47 +1,58 @@
-# C version (default) -> "make" or "make yacc=0"
-# yacc version -> "make yacc=1"
+#
+# make option:
+#   C version (default) -> "make" or "make yacc=0"
+#   yacc version -> "make yacc=1"
+#
+# exe files:
+#   pl0c: compile pl0 language into op file
+#   pl0e: run op file
 
 CC			= cc
 CFLAGS	= -g -ansi -pedantic -Wall
 LDFLAGS	=
 
-OBJS_DEFAULT = codegen.o \
-			compile.o \
-			getSource.o \
-			main.o \
-			table.o
-
-OBJS_YACC = codegen.o \
-			table.o \
-			lex.yy.o \
-			y.tab.o
-
-OBJS = $(OBJS_DEFAULT)
-
 ifdef yacc
-ifneq ($(yacc), 0)
-  OBJS = $(OBJS_YACC)
+  yacc = 1
+else
+	yacc = 0
 endif
+
+OBJS_COMMON = codegen.o table.o
+OBJS_PL0C = $(OBJS_COMMON) pl0c_main.o
+
+ifeq ($(yacc), 0)
+  OBJS_PL0C += compile.o getSource.o
+else
+  OBJS_PL0C += lex.yy.o
+  CFLAGS += -DYACC
 endif
+
+OBJS_PL0E = $(OBJS_COMMON) \
+			getSource.o \
+			pl0e_main.o
 
 .SUFFIXES	: .o .c
 
-all : pl0d
+all : pl0c pl0e
 
 clean	:
-	rm -f pl0d pl0d_yacc *~ *.o lex.yy.c y.tab.*
+	rm -f pl0c *~ *.o lex.yy.c y.tab.*
 
 .c.o :
 	$(CC) $(CFLAGS) -c $<
 
-pl0d : $(OBJS)
-	$(CC) -o $@ $(OBJS)
+pl0c : $(OBJS_PL0C)
+	$(CC) -o $@ $(OBJS_PL0C)
+
+pl0e : $(OBJS_PL0E)
+	$(CC) -o $@ $(OBJS_PL0E)
 
 getSource.h : table.h
 codegen.o : 	codegen.h getSource.h table.h
 compile.o : 	codegen.h getSource.h table.h
 getSource.o : getSource.h
-main.o :			getSource.h
+pl0c_main.o : getSource.h y.tab.c
+pl0e_main.o : codegen.h getSource.h
 table.o : 		getSource.h
 lex.yy.o :		lex.yy.c
 y.tab.o :			y.tab.c
