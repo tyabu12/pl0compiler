@@ -7,12 +7,12 @@
 #   pl0c: compile pl0 language into op file
 #   pl0e: run op file
 
-CC			= cc
+CC		= cc
 CFLAGS	= -g -ansi -pedantic -Wall
 LDFLAGS	=
 
 ifdef yacc
-  yacc = 1
+	yacc = 1
 else
 	yacc = 0
 endif
@@ -21,10 +21,10 @@ OBJS_COMMON = codegen.o table.o
 OBJS_PL0C = $(OBJS_COMMON) pl0c_main.o
 
 ifeq ($(yacc), 0)
-  OBJS_PL0C += compile.o getSource.o
+	OBJS_PL0C += compile.o getSource.o
 else
-  OBJS_PL0C += lex.yy.o
-  CFLAGS += -DYACC
+	OBJS_PL0C += lex.yy.o
+	CFLAGS += -DYACC
 endif
 
 OBJS_PL0E = $(OBJS_COMMON) \
