@@ -23,7 +23,11 @@ void yyerror(const char* s) {
 #endif
 
 static void printUsage(const char *argv0) {
+#ifdef YACC
     printf("Usage: %s [-h] [-o <output_file>] <input_file>\n", argv0);
+#else
+    printf("Usage: %s [-g] [-h] [-o <output_file>] <input_file>\n", argv0);
+#endif
 }
 
 int main(int argc, char *argv[]) {
@@ -31,6 +35,7 @@ int main(int argc, char *argv[]) {
     FILE *fout = NULL;
     int opt;
     /* コマンドラインオプションを解釈 */
+#ifdef YACC
     while ((opt = getopt(argc, argv, "o:h")) != -1) {
         switch (opt) {
         case 'o': strcpy(outFileName, optarg); break; /* 出力ファイル名取得 */
@@ -38,6 +43,17 @@ int main(int argc, char *argv[]) {
         default:  printUsage(argv[0]); return 1;      /* 無効なオプション */
         }
     }
+#else
+    int outHtml = 0;
+    while ((opt = getopt(argc, argv, "o:gh")) != -1) {
+        switch (opt) {
+        case 'o': strcpy(outFileName, optarg); break; /* 出力ファイル名取得 */
+        case 'g': outHtml = 1; break;
+        case 'h': printUsage(argv[0]); return 0;      /* ヘルプ表示 */
+        default:  printUsage(argv[0]); return 1;      /* 無効なオプション */
+        }
+    }
+#endif
     if (optind >= argc) {
         fprintf(stderr, "%s: no input file\n", argv[0]);
         printUsage(argv[0]);
@@ -56,7 +72,7 @@ int main(int argc, char *argv[]) {
     listCode(fout, 0);
     fclose(yyin);
 #else
-    if (!openSource(argv[optind]))  /* ソースプログラムファイルのopen */
+    if (!openSource(argv[optind], outHtml)) /* ソースプログラムファイルのopen */
         return 1;               /* openに失敗すれば終わり               */
     compile(fout);              /* コンパイル */
     closeSource();              /* ソースプログラムファイルのclose      */

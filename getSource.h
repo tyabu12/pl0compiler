@@ -7,48 +7,48 @@
 #   define TBL
 #   include "table.h"
 #endif
- 
+
 #define MAXNAME 31              /* 名前の最大長さ                       */
- 
+
 typedef enum keys {             /* キーや文字の種類（名前）             */
-    Begin,                      /* 予約語の名前                         */ 
+    Begin,                      /* 予約語の名前                         */
     End,
-    If, 
+    If,
     Then,
-    While, 
+    While,
     Do,
-    Ret, 
-    Func, 
-    Var, 
-    Const, 
+    Ret,
+    Func,
+    Var,
+    Const,
     Odd,
-    Write, 
+    Write,
     WriteLn,
     end_of_KeyWd,               /* 予約語の名前はここまで               */
     Plus,                       /* 演算子と区切り記号の名前             */
     Minus,
-    Mult, 
-    Div,  
-    Lparen, 
+    Mult,
+    Div,
+    Lparen,
     Rparen,
-    Equal, 
-    Lss, 
+    Equal,
+    Lss,
     Gtr,
-    NotEq, 
-    LssEq, 
-    GtrEq, 
-    Comma, 
-    Period, 
+    NotEq,
+    LssEq,
+    GtrEq,
+    Comma,
+    Period,
     Semicolon,
     Assign,
     end_of_KeySym,              /* 演算子と区切り記号の名前はここまで   */
     Id,                         /* トークンの種類                       */
-    Num, 
+    Num,
     nul,
     end_of_Token,
     letter,                     /* 上記以外の文字の種類                 */
-    digit, 
-    colon, 
+    digit,
+    colon,
     others
 } KeyId;
 
@@ -69,10 +69,10 @@ Token checkGet(Token t, KeyId k); /* t.kind==kのチェック                */
                                 /* （tをkで置き換えたことになる）       */
                                 /* それ以外の場合、kを挿入したことにして、tを返す */
 
-int openSource(char fileName[]); /* ソースファイルのopen                */
+int openSource(char fileName[], int outHtml); /* ソースファイルのopen */
 void closeSource();             /* ソースファイルのclose                */
-void initSource();              /* テーブルの初期設定、texファイルの初期設定 */  
-void finalSource();             /* ソースの最後のチェック、texファイルの最終設定 */  
+void initSource();              /* テーブルの初期設定、texファイルの初期設定 */
+void finalSource();             /* ソースの最後のチェック、texファイルの最終設定 */
 void errorType(char *m);        /* 型エラーを.texファイルに出力         */
 void errorInsert(KeyId k);      /* keyString(k)を.texファイルに挿入     */
 void errorMissingId();          /* 名前がないとのメッセージを.texファイルに挿入 */

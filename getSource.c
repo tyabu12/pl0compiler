@@ -16,7 +16,7 @@
 #define TYPE_C  "#00FF00"       /* タイプエラー文字の色                 */
 
 static FILE *fpi;               /* ソースファイル                       */
-static FILE *fptex;             /* LaTeX出力ファイル                    */
+static FILE *fphtml;            /* HTML出力ファイル                    */
 static char line[MAXLINE];      /* １行分の入力バッファー               */
 static int lineIndex;           /* 次に読む文字の位置                   */
 static char ch;                 /* 最後に読んだ文字                     */
@@ -105,24 +105,28 @@ static void initCharClassT() {  /* 文字の種類を示す表を作る関数   
     charClassT[':'] = colon;
 }
 
-int openSource(char fileName[]) { /* ソースファイルのopen               */
+int openSource(char fileName[], int outHtml) { /* ソースファイルのopen */
     char fileNameO[FILENAME_MAX];
-    if ((fpi = fopen(fileName,"r")) == NULL ) {
+    if ((fpi = fopen(fileName, "r")) == NULL ) {
         printf("can't open %s\n", fileName);
         return 0;
     }
-    strcpy(fileNameO, fileName);
-    strcat(fileNameO,".html");  /* strcat(fileNameO,".tex");            */
-    if ((fptex = fopen(fileNameO,"w")) == NULL) { /* .html（または.tex）ファイルを作る */
-        printf("can't open %s\n", fileNameO);
-        return 0;
+    if (outHtml) {
+        strcpy(fileNameO, fileName);
+        strcat(fileNameO, ".html");
+        if ((fphtml = fopen(fileNameO, "w")) == NULL) { /* .htmlファイルを作る */
+            printf("can't open %s\n", fileNameO);
+            return 0;
+        }
+    } else {
+        fphtml = fopen("/dev/null", "w"); /* 書き込みを破棄 */
     }
     return 1;
 }
 
-void closeSource() {            /* ソースファイルと.html（または.tex）ファイルをclose */
+void closeSource() {            /* ソースファイルと.htmlファイルをclose */
     fclose(fpi);
-    fclose(fptex);
+    fclose(fphtml);
 }
 
 void initSource() {
@@ -130,17 +134,9 @@ void initSource() {
     ch = '\n';
     printed = 1;
     initCharClassT();
-    fprintf(fptex,"<HTML>\n");  /* htmlコマンド                         */
-    fprintf(fptex,"<HEAD>\n<TITLE>compiled source program</TITLE>\n</HEAD>\n");
-    fprintf(fptex,"<BODY>\n<PRE>\n");
-    /* LaTeXコマンド */
-    /* fprintf(fptex,"\\documentstyle[12pt]{article}\n");
-    fprintf(fptex,"\\begin{document}\n");
-    fprintf(fptex,"\\fboxsep=0pt\n");
-    fprintf(fptex,"\\def\\insert#1{$\\fbox{#1}$}\n");
-    fprintf(fptex,"\\def\\delete#1{$\\fboxrule=.5mm\\fbox{#1}$}\n");
-    fprintf(fptex,"\\rm\n");
-    */
+    fprintf(fphtml, "<HTML>\n");  /* htmlコマンド                         */
+    fprintf(fphtml, "<HEAD>\n<TITLE>compiled source program</TITLE>\n</HEAD>\n");
+    fprintf(fphtml, "<BODY>\n<PRE>\n");
 }
 
 void finalSource() {
@@ -148,8 +144,7 @@ void finalSource() {
         printcToken();
     else
         errorInsert(Period);
-    fprintf(fptex,"\n</PRE>\n</BODY>\n</HTML>\n");
-    /* fprintf(fptex,"\n\\end{document}\n"); */
+    fprintf(fphtml, "\n</PRE>\n</BODY>\n</HTML>\n");
 }
 
 /* 通常のエラーメッセージの出力の仕方（参考まで） */
@@ -170,40 +165,31 @@ void finalSource() {
 
 void errorNoCheck() {           /* エラーの個数のカウント、多すぎたら終わり */
     if (errorNo++ > MAXERROR) {
-        fprintf(fptex, "too many errors\n</PRE>\n</BODY>\n</HTML>\n");
-        /* fprintf(fptex, "too many errors\n\\end{document}\n"); */
+        fprintf(fphtml, "too many errors\n</PRE>\n</BODY>\n</HTML>\n");
         printf("abort compilation\n");
         exit(1);
     }
 }
 
-void errorType(char *m) {       /* 型エラーを.html（または.tex）ファイルに出力 */
+void errorType(char *m) {       /* 型エラーを.htmlファイルに出力 */
     printSpaces();
-    fprintf(fptex, "<FONT COLOR=%s>%s</FONT>", TYPE_C, m);
-    /* fprintf(fptex, "\\(\\stackrel{\\mbox{\\scriptsize %s}}{\\mbox{", m); */
+    fprintf(fphtml, "<FONT COLOR=%s>%s</FONT>", TYPE_C, m);
     printcToken();
-    /* fprintf(fptex, "}}\\)"); */
     errorNoCheck();
 }
 
-void errorInsert(KeyId k) {     /* keyString(k)を.html（または.tex）ファイルに挿入 */
-    fprintf(fptex, "<FONT COLOR=%s><b>%s</b></FONT>", INSERT_C, KeyWdT[k].word);
-    /* if (k < end_of_KeyWd) */ /* 予約語                               */
-    /*     fprintf(fptex, "\\ \\insert{{\\bf %s}}", KeyWdT[k].word); */
-    /* else */                  /* 演算子か区切り記号                   */
-    /* fprintf(fptex, "\\ \\insert{$%s$}", KeyWdT[k].word); */
+void errorInsert(KeyId k) {     /* keyString(k)を.htmlファイルに挿入 */
+    fprintf(fphtml, "<FONT COLOR=%s><b>%s</b></FONT>", INSERT_C, KeyWdT[k].word);
     errorNoCheck();
 }
 
-void errorMissingId() {         /* 名前がないとのメッセージを.html（または.tex）ファイルに挿入 */
-    fprintf(fptex, "<FONT COLOR=%s>Id</FONT>", INSERT_C);
-    /* fprintf(fptex, "\\insert{Id}"); */
+void errorMissingId() {         /* 名前がないとのメッセージを.htmlファイルに挿入 */
+    fprintf(fphtml, "<FONT COLOR=%s>Id</FONT>", INSERT_C);
     errorNoCheck();
 }
 
-void errorMissingOp() {         /* 演算子がないとのメッセージを.html（または.tex）ファイルに挿入 */
-    fprintf(fptex, "<FONT COLOR=%s>@</FONT>", INSERT_C);
-    /* fprintf(fptex, "\\insert{$\\otimes$}"); */
+void errorMissingOp() {         /* 演算子がないとのメッセージを.htmlファイルに挿入 */
+    fprintf(fphtml, "<FONT COLOR=%s>@</FONT>", INSERT_C);
     errorNoCheck();
 }
 
@@ -212,29 +198,23 @@ void errorDelete() {            /* 今読んだトークンを読み捨てる   
     printSpaces();
     printed = 1;
     if (i < end_of_KeyWd)       /* 予約語                               */
-        fprintf(fptex, "<FONT COLOR=%s><b>%s</b></FONT>", DELETE_C, KeyWdT[i].word);
-        /* fprintf(fptex, "\\delete{{\\bf %s}}", KeyWdT[i].word); */
+        fprintf(fphtml, "<FONT COLOR=%s><b>%s</b></FONT>", DELETE_C, KeyWdT[i].word);
     else if (i < end_of_KeySym) /* 演算子か区切り記号                   */
-        fprintf(fptex, "<FONT COLOR=%s>%s</FONT>", DELETE_C, KeyWdT[i].word);
-        /* fprintf(fptex, "\\delete{$%s$}", KeyWdT[i].word); */
+        fprintf(fphtml, "<FONT COLOR=%s>%s</FONT>", DELETE_C, KeyWdT[i].word);
     else if (i==(int)Id)        /* Identfier */
-        fprintf(fptex, "<FONT COLOR=%s>%s</FONT>", DELETE_C, cToken.u.id);
-        /* fprintf(fptex, "\\delete{%s}", cToken.u.id); */
+        fprintf(fphtml, "<FONT COLOR=%s>%s</FONT>", DELETE_C, cToken.u.id);
     else if (i==(int)Num)       /* Num */
-        fprintf(fptex, "<FONT COLOR=%s>%d</FONT>", DELETE_C, cToken.u.value);
-        /* fprintf(fptex, "\\delete{%d}", cToken.u.value); */
+        fprintf(fphtml, "<FONT COLOR=%s>%d</FONT>", DELETE_C, cToken.u.value);
 }
 
-void errorMessage(char *m) {    /* エラーメッセージを.html（または.tex）ファイルに出力 */
-    fprintf(fptex, "<FONT COLOR=%s>%s</FONT>", TYPE_C, m);
-    /* fprintf(fptex, "$^{%s}$", m); */
+void errorMessage(char *m) {    /* エラーメッセージを.htmlファイルに出力 */
+    fprintf(fphtml, "<FONT COLOR=%s>%s</FONT>", TYPE_C, m);
     errorNoCheck();
 }
 
 void errorF(char *m) {          /* エラーメッセージを出力し、コンパイル終了 */
     errorMessage(m);
-    fprintf(fptex, "fatal errors\n</PRE>\n</BODY>\n</HTML>\n");
-    /* fprintf(fptex, "fatal errors\n\\end{document}\n"); */
+    fprintf(fphtml, "fatal errors\n</PRE>\n</BODY>\n</HTML>\n");
     if (errorNo)
         printf("total %d errors\n", errorNo);
     printf("abort compilation\n");
@@ -371,11 +351,9 @@ Token checkGet(Token t, KeyId k) { /* t.kind == k のチェック            */
 
 static void printSpaces() {     /* 空白や改行の印字                     */
     while (CR-- > 0)
-        fprintf(fptex, "\n");
-        /* fprintf(fptex, "\\ \\par\n"); */
+        fprintf(fphtml, "\n");
     while (spaces-- > 0)
-        fprintf(fptex, " ");
-        /* fprintf(fptex, "\\ "); */
+        fprintf(fphtml, " ");
     CR = 0; spaces = 0;
 }
 
@@ -387,27 +365,22 @@ void printcToken() {            /* 現在のトークンの印字               
     printed = 1;
     printSpaces();              /* トークンの前の空白や改行印字         */
     if (i < end_of_KeyWd)       /* 予約語                               */
-        fprintf(fptex, "<b>%s</b>", KeyWdT[i].word);
-        /* fprintf(fptex, "{\\bf %s}", KeyWdT[i].word); */
+        fprintf(fphtml, "<b>%s</b>", KeyWdT[i].word);
     else if (i < end_of_KeySym) /* 演算子か区切り記号                   */
-        fprintf(fptex, "%s", KeyWdT[i].word);
-        /* fprintf(fptex, "$%s$", KeyWdT[i].word); */
+        fprintf(fphtml, "%s", KeyWdT[i].word);
     else if (i == (int)Id) {    /* Identfier                            */
         switch (idKind) {
         case varId:
-            fprintf(fptex, "%s", cToken.u.id); return;
+            fprintf(fphtml, "%s", cToken.u.id); return;
         case parId:
-            fprintf(fptex, "<i>%s</i>", cToken.u.id); return;
-            /* fprintf(fptex, "{\\sl %s}", cToken.u.id); return; */
+            fprintf(fphtml, "<i>%s</i>", cToken.u.id); return;
         case funcId:
-            fprintf(fptex, "<i>%s</i>", cToken.u.id); return;
-            /* fprintf(fptex, "{\\it %s}", cToken.u.id); return; */
+            fprintf(fphtml, "<i>%s</i>", cToken.u.id); return;
         case constId:
-            fprintf(fptex, "<tt>%s</tt>", cToken.u.id); return;
-            /* fprintf(fptex, "{\\sf %s}", cToken.u.id); return; */
+            fprintf(fphtml, "<tt>%s</tt>", cToken.u.id); return;
         }
     } else if (i == (int)Num)   /* Num                                  */
-        fprintf(fptex, "%d", cToken.u.value);
+        fprintf(fphtml, "%d", cToken.u.value);
 }
 
 void setIdKind(KindT k) {       /* 現トークン(Id)の種類をセット         */
