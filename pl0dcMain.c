@@ -1,5 +1,5 @@
 /*
- * pl0c_main.c
+ * pl0dcMain.c
  */
 
 #include <stdio.h>
@@ -48,12 +48,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 #ifdef YACC
-    if ((yyin = fopen(argv[optind], "r")) == NULL ) {
+    if ((yyin = fopen(argv[optind], "r")) == NULL) {
         printf("can't open %s\n", argv[optind]);
         return 1;
     }
     yyparse();
     listCode(fout, 0);
+    fclose(yyin);
 #else
     if (!openSource(argv[optind]))  /* ソースプログラムファイルのopen */
         return 1;               /* openに失敗すれば終わり               */

@@ -149,20 +149,20 @@ struct {
   const char *name;
   Operator optr;
 } static const optrTbl[] = {
-  { "neg", neg },
-  { "add", add },
-	{ "sub", sub },
-	{ "mul", mul },
-	{ "div", div },
-	{ "odd", odd },
-	{ "eq", eq },
-	{ "ls", ls },
-	{ "gr", gr },
-	{ "neq", neq },
-	{ "lseq", lseq },
-	{ "greq", greq },
-	{ "wrt", wrt },
-	{ "wrl", wrl },
+  { "neg",  neg  },
+  { "add",  add  },
+  { "sub",  sub  },
+  { "mul",  mul  },
+  { "div",  div  },
+  { "odd",  odd  },
+  { "eq",   eq   },
+  { "ls",   ls   },
+  { "gr",   gr   },
+  { "neq",  neq  },
+  { "lseq", lseq },
+  { "greq", greq },
+  { "wrt",  wrt  },
+  { "wrl",  wrl  },
   { NULL, }
 };
     char s[256];

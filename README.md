@@ -7,7 +7,7 @@ http://www.k.hosei.ac.jp/~nakata/oCompiler/PL0compiler/prog_proc1.html
 
 ## コンパイル方法
 
-以下を実行することにより、コマンド `pl0c` と `pl0e` が生成される。
+以下を実行することにより、コマンド `pl0dc` と `pl0dm` が生成される。
 ~~~
 $ make
 ~~~
@@ -20,7 +20,7 @@ $ make
 
 PL/0'プログラム `example.pl0` をコンパイル:
 ~~~
-$ pl0c example.pl0
+$ pl0dc example.pl0
 ~~~
 機械語ファイルを格納したファイル `a.out` が生成される。
 
@@ -28,7 +28,7 @@ $ pl0c example.pl0
 
 機械語ファイル `a.out` を仮想機械で実行:
 ~~~
-$ pl0e a.out
+$ pl0dm a.out
 ~~~
 
 ## 参考文献

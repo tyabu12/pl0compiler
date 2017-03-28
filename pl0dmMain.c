@@ -1,5 +1,5 @@
 /*
- * pl0e_main.c
+ * pl0dmMain.c
  */
 
 #include <stdio.h>
@@ -33,7 +33,6 @@ int main(int argc, char *argv[]) {
     }
     if (readCode(fin))
         return 1;
-    /* listCode(stdout, 1); */
     execute(); /* エラーがなければ実行 */
     fclose(fin);
     return 0;
