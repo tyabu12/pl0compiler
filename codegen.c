@@ -165,34 +165,41 @@ struct {
   { "wrl",  wrl  },
   { NULL, }
 };
-    char s[256];
+    char str[256];
+    char *p;
     int op, optr, i;
-    for (i = 0; fgets(s, 256, fp) != NULL; i++) {
+    for (i = 0; fgets(str, 256, fp) != NULL; i++) {
+        p = str;
+        /* 行番号のスキップ */
+        while (*p != ':' && *p != '\0') p++;
+        p++;
+        while (*p == ' ' && *p != '\0') p++;
+        if (*p == '\0') return 1;
         for (op = 0; opTbl[op].name != NULL; op++) {
-            if (strncmp(opTbl[op].name, s, 3) == 0)
+            if (strncmp(opTbl[op].name, p, 3) == 0)
                 break;
         }
         if (opTbl[op].name == NULL) {
-            fprintf(stderr, "Unknown op: %s\n", s);
+            fprintf(stderr, "Unknown op: %s\n", str);
             return 1;
         }
         code[i].opCode = opTbl[op].opCode;
         switch (opTbl[op].flag) {
         case 1:
-            sscanf(s+4, "%d", &code[i].u.value);
+            sscanf(p+4, "%d", &code[i].u.value);
             break;
         case 2:
-            sscanf(s+4, "%d,%d",
+            sscanf(p+4, "%d,%d",
                 &code[i].u.addr.level, &code[i].u.addr.addr);
             break;
         case 3:
             for (optr = 0; optrTbl[optr].name != NULL; optr++) {
-                if (strncmp(optrTbl[optr].name, s+4,
+                if (strncmp(optrTbl[optr].name, p+4,
                   strlen(optrTbl[optr].name)) == 0)
                     break;
             }
             if (optrTbl[optr].name == NULL) {
-                fprintf(stderr, "Unknown operator: %s\n", s);
+                fprintf(stderr, "Unknown operator: %s\n", str);
                 return 1;
             }
             code[i].u.optr = optrTbl[optr].optr;
