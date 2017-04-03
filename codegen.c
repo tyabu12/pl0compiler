@@ -156,11 +156,11 @@ struct {
   { "div",  div  },
   { "odd",  odd  },
   { "eq",   eq   },
+  { "lseq", lseq },
   { "ls",   ls   },
+  { "greq", greq },
   { "gr",   gr   },
   { "neq",  neq  },
-  { "lseq", lseq },
-  { "greq", greq },
   { "wrt",  wrt  },
   { "wrl",  wrl  },
   { NULL, }
