@@ -122,6 +122,7 @@ void printCode(FILE *fp, int i) { /* 命令語の印字 */
         case neq: fprintf(fp, ",neq\n"); return;
         case lseq: fprintf(fp, ",lseq\n"); return;
         case greq: fprintf(fp, ",greq\n"); return;
+        case rd: fprintf(fp, ",rd\n"); return;
         case wrt: fprintf(fp, ",wrt\n"); return;
         case wrl: fprintf(fp, ",wrl\n"); return;
         }
@@ -161,6 +162,7 @@ struct {
   { "greq", greq },
   { "gr",   gr   },
   { "neq",  neq  },
+  { "rd",   rd   },
   { "wrt",  wrt  },
   { "wrl",  wrl  },
   { NULL, }
@@ -264,6 +266,7 @@ void execute() {                /* 目的コード（命令語）の実行      
             case neq: --top;  stack[top-1] = (stack[top-1] != stack[top]); continue;
             case lseq: --top;  stack[top-1] = (stack[top-1] <= stack[top]); continue;
             case greq: --top;  stack[top-1] = (stack[top-1] >= stack[top]); continue;
+            case rd: scanf("%d", &stack[top++]); continue;
             case wrt: printf("%d ", stack[--top]); continue;
             case wrl: printf("\n"); continue;
             }

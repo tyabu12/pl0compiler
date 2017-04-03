@@ -51,6 +51,7 @@ static struct keyWd KeyWdT[] = { /* 予約語や記号と名前(KeyId)の表    
     {"var",     Var},
     {"const",   Const},
     {"odd",     Odd},
+    {"read",    Read},
     {"write",   Write},
     {"writeln", WriteLn},
     {"$dummy1", end_of_KeyWd},

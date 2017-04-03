@@ -328,11 +328,15 @@ void factor() {                 /* 式の因子のコンパイル               
         token = nextToken();
         expression();
         token = checkGet(token, Rparen);
+    } else if (token.kind == Read) { /* 標準入力から読み込み */
+        genCodeO(rd);
+        token = nextToken();
     }
     switch (token.kind) {       /* 因子の後がまた因子ならエラー         */
     case Id:
     case Num:
     case Lparen:
+    case Read:
         errorMissingOp();
         factor();
     default:

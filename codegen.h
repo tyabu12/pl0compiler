@@ -8,7 +8,7 @@ typedef enum codes {            /* 命令語のコード                       *
 
 typedef enum ops {              /* 演算命令のコード                     */
     neg, add, sub, mul, div, odd, eq, ls, gr,
-    neq, lseq, greq, wrt, wrl
+    neq, lseq, greq, rd, wrt, wrl
 } Operator;
 
 int genCodeV(OpCode op, int v); /* 命令語の生成、アドレス部にv          */

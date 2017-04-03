@@ -22,6 +22,7 @@ typedef enum keys {             /* キーや文字の種類（名前）         
     Var,
     Const,
     Odd,
+    Read,
     Write,
     WriteLn,
     end_of_KeyWd,               /* 予約語の名前はここまで               */

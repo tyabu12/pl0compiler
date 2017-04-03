@@ -29,6 +29,7 @@ letter		[a-zA-Z]
 "while"		{ return WHILE;	}
 "do"			{ return DO;		}
 "return"		{ return RETURN;	}
+"read"			{ return READ;	}
 "write"		{ return WRITE;	}
 "writeln"		{ return WRITELN;	}
 "odd"			{ return ODD;		}

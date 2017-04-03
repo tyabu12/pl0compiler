@@ -1,0 +1,19 @@
+
+function fact(n)
+begin
+  if n = 1 then return 1;
+  return n*fact(n-1);
+end;
+
+var x, n;
+begin
+  x := 1;
+  n := read;
+  while x<=n do
+    begin
+      write x;
+      write fact(x);
+      writeln;
+      x := x+1;
+    end;
+end.

@@ -15,7 +15,7 @@ extern int warning(const char* s);
 
 %token		COLOEQ EQ NOTEQ LT GT LE GE
 %token		CONST VAR FUNCTION BEGINN END IF THEN WHILE
-%token		DO RETURN WRITE WRITELN ODD IDENT NUMBER
+%token		DO RETURN READ WRITE WRITELN ODD IDENT NUMBER
 
 %token  <name> IDENT
 %token  <val>  NUMBER
@@ -123,6 +123,7 @@ factor		: IDENT	{ int j, k; j = searchT($1, varId); k = kindT(j);
 		| NUMBER 	{ genCodeV(lit, $1);}
 
 		| IDENT '(' expList ')'	{ genCodeT(cal, searchT($1, varId));}
+		| READ 	{ genCodeO(rd);}
 		| '(' expression ')'
 		;
 
