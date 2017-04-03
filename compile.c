@@ -37,7 +37,7 @@ int compile(FILE *fout) {
     i = errorN();               /* エラーメッセージの個数               */
     if (i!=0)
         printf("%d errors\n", i);
-    listCode(fout, 0);          /* 目的コードのリスト（必要なら）       */
+    listCode(fout, 1);          /* 目的コードのリスト（必要なら）       */
     return i < MINERROR;        /* エラーメッセージの個数が少ないかどうかの判定 */
 }
 

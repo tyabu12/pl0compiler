@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     yyparse();
-    listCode(fout, 0);
+    listCode(fout, 1);
     fclose(yyin);
 #else
     if (!openSource(argv[optind], outHtml)) /* ソースプログラムファイルのopen */
