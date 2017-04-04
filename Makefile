@@ -30,6 +30,12 @@ OBJS_PL0DM = $(OBJS_COMMON) \
 
 all : pl0dc pl0dm
 
+install :
+	cp -p pl0d[cm] /usr/bin
+
+uninstall :
+	rm -f /usr/bin/pl0d[cm]
+
 clean	:
 	rm -f pl0dc pl0dm *~ *.o lex.yy.c y.tab.*
 
