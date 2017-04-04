@@ -1,0 +1,16 @@
+# executable files
+pl0dc
+pl0dm
+
+# C
+*.o
+
+# Bison
+y.tab.c
+y.tab.h
+
+# Flex
+lex.yy.c
+
+# PL/0' op code
+*.out
