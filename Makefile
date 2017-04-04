@@ -46,7 +46,11 @@ getSource.h : table.h
 codegen.o : codegen.h getSource.h table.h
 compile.o : codegen.h getSource.h table.h
 getSource.o : getSource.h
-pl0dcMain.o : getSource.h y.tab.c
+ifeq ($(yacc), 0)
+ pl0dcMain.o : getSource.h
+else
+ pl0dcMain.o : getSource.h y.tab.c
+endif
 pl0dmMain.o : codegen.h getSource.h
 table.o : getSource.h
 lex.yy.o : lex.yy.c
