@@ -129,6 +129,7 @@ void printCode(FILE *fp, int i) { /* 命令語の印字 */
     }
 }
 
+/* 命令語ファイルの読み取り */
 int readCode(FILE *fp) {
 struct {
   const char *name;
@@ -144,7 +145,7 @@ struct {
   { "ict", ict, 1 },
   { "jmp", jmp, 1 },
   { "jpc", jpc, 1 },
-  { NULL, }
+  { NULL, } /* 番兵 */
 };
 struct {
   const char *name;
@@ -165,7 +166,7 @@ struct {
   { "rd",   rd   },
   { "wrt",  wrt  },
   { "wrl",  wrl  },
-  { NULL, }
+  { NULL, } /* 番兵 */
 };
     char str[256];
     char *p;
@@ -174,9 +175,10 @@ struct {
         p = str;
         /* 行番号のスキップ */
         while (*p != ':' && *p != '\0') p++;
-        p++;
+        if (*p == ':') p++;
         while (*p == ' ' && *p != '\0') p++;
         if (*p == '\0') return 1;
+        /* 命令語をテーブルから検索 */
         for (op = 0; opTbl[op].name != NULL; op++) {
             if (strncmp(opTbl[op].name, p, 3) == 0)
                 break;
@@ -186,6 +188,7 @@ struct {
             return 1;
         }
         code[i].opCode = opTbl[op].opCode;
+        /* 命令語の形式毎に処理 */
         switch (opTbl[op].flag) {
         case 1:
             sscanf(p+4, "%d", &code[i].u.value);
