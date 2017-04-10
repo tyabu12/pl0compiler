@@ -1,5 +1,5 @@
-/*
- * pl0dcMain.c
+/**
+ * @file pl0dcMain.c
  */
 
 #include <stdio.h>

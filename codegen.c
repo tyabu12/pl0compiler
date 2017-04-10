@@ -1,5 +1,5 @@
-/*
- * codegen.c
+/**
+ * @file codegen.c
  */
 
 #include <stdio.h>

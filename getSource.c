@@ -1,5 +1,5 @@
-/*
- * getSource.c
+/**
+ * @file getSource.c
  */
 
 #include <stdio.h>

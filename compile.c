@@ -1,5 +1,5 @@
-/*
- * compile.c
+/**
+ * @file compile.c
  */
 
 #include "getSource.h"

@@ -1,5 +1,5 @@
-/*
- * table.c
+/**
+ * @file table.c
  */ 
 
 #include <string.h>
