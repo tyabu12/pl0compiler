@@ -108,13 +108,20 @@ static void initCharClassT() {  /* 文字の種類を示す表を作る関数   
 
 int openSource(char fileName[], int outHtml) { /* ソースファイルのopen */
     char fileNameO[FILENAME_MAX];
+    char *p;
     if ((fpi = fopen(fileName, "r")) == NULL ) {
         printf("can't open %s\n", fileName);
         return 0;
     }
     if (outHtml) {
         strcpy(fileNameO, fileName);
-        strcat(fileNameO, ".html");
+        p = strrchr(fileNameO, '/');
+        if (p != NULL) {
+            *p = '\0';
+            strcat(fileNameO, "/g.out.html");
+        } else {
+            strcpy(fileNameO, "g.out.html");
+        }
         if ((fphtml = fopen(fileNameO, "w")) == NULL) { /* .htmlファイルを作る */
             printf("can't open %s\n", fileNameO);
             return 0;
