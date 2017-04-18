@@ -1,0 +1,15 @@
+const a = 0;
+const b = 1, c = 2, d = 3;
+
+var x, y, z, d;
+
+const z = 4;
+
+begin
+  write (a+b+c)*3/2; writeln;
+  x := (a+b+c)*3;
+  write x/2; writeln;
+  write y; writeln;
+  write d; writeln;
+  write z; writeln;
+end.

@@ -1,0 +1,9 @@
+function f(x)
+  begin
+    if x = 0 then return x;
+    return f(x-1);
+  end;
+
+begin
+  write f(3); writeln;
+end.

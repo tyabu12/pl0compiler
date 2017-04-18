@@ -1,0 +1,4 @@
+begin
+  write 1+2;
+  writeln
+end.

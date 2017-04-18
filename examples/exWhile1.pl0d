@@ -1,0 +1,13 @@
+var i;
+begin
+  i := 3;
+  write i; writeln;
+
+  while 0 <> 1 do begin;
+    i := i-1;
+    if i = 0 then begin
+      write i; writeln;
+      return;
+    end
+  end
+end.
