@@ -270,7 +270,7 @@ void execute() {                /* 目的コード（命令語）の実行      
             case lseq: --top;  stack[top-1] = (stack[top-1] <= stack[top]); continue;
             case greq: --top;  stack[top-1] = (stack[top-1] >= stack[top]); continue;
             case rd: scanf("%d", &stack[top++]); continue;
-            case wrt: printf("%d ", stack[--top]); continue;
+            case wrt: printf("%d", stack[--top]); continue;
             case wrl: printf("\n"); continue;
             }
         }
