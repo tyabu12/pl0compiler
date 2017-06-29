@@ -1,0 +1,4 @@
+begin
+  if 0 = 1 then write 0; writeln;
+  if 0 < 1 then write 1; writeln;
+end.

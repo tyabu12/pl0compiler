@@ -1,0 +1,7 @@
+var i;
+begin
+  i := 3;
+  write i; writeln;
+  while i >= 0 do i := i-1;
+  write i; writeln;
+end.

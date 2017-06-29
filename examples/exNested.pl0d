@@ -1,0 +1,15 @@
+begin
+  write 0; writeln;
+  begin
+    write 0; writeln;
+    begin
+      write 1; writeln;
+      begin
+        write 2; writeln;
+      end;
+      return;
+      write 3; writeln;
+    end
+  end;
+  write 4; writeln;
+end.

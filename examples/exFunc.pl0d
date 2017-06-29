@@ -1,0 +1,46 @@
+function f1()
+  return 0;
+
+function f2(x, y)
+  begin
+    write x; writeln;
+    write y; writeln;
+  end;
+
+var x;
+
+function f3()
+  x := 3;
+
+function f4(x)
+  x := 4;
+
+function f5(x)
+  var x;
+  begin
+    return f4(x);
+  end;
+
+function f6(x)
+  function f3()
+    x := 3;
+
+  begin
+    return f3();
+  end;
+
+var r;
+
+begin
+  x := 0;
+  write f1(); writeln;
+  r := f2(1, 2);
+  r := f3();
+  write x; writeln;
+  r := f4(x);
+  write x; writeln;
+  r := f5(x);
+  write x; writeln;
+  r := f6(x);
+  write x; writeln;
+end.

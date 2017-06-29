@@ -1,3 +1,7 @@
+.PHONY: install uninstall doc clean
+
+PREFIX = /usr/local
+
 CC = cc
 CFLAGS = -g -ansi -pedantic -Wall
 LDFLAGS =
@@ -5,6 +9,8 @@ BISON = bison
 BISON_FLAGS = -d -y
 FLEX = flex
 FLEX_FLAGS = -l
+
+DOXYGEN = doxygen
 
 ifdef yacc
  yacc = 1
@@ -31,13 +37,16 @@ OBJS_PL0DM = $(OBJS_COMMON) \
 all : pl0dc pl0dm
 
 install :
-	cp -p pl0d[cm] /usr/bin
+	cp -p pl0d[cm] $(PREFIX)/bin
 
 uninstall :
-	rm -f /usr/bin/pl0d[cm]
+	rm -f $(PREFIX)/bin/pl0d[cm]
+
+doc : doc/Doxyfile
+	cd doc; $(DOXYGEN) Doxyfile
 
 clean	:
-	rm -f pl0dc pl0dm *~ *.o lex.yy.c y.tab.*
+	rm -f pl0dc pl0dm *~ *.o lex.yy.c y.tab.* doc/html doc/latex
 
 .c.o :
 	$(CC) $(CFLAGS) -c $<
