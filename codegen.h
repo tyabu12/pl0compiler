@@ -6,7 +6,7 @@
 #define MAXMEM 2000             /* 実行時スタックの最大長さ             */
 #define MAXREG 20               /* 演算レジスタスタックの最大長さ       */
 #define MAXLEVEL 5              /* ブロックの最大深さ                   */
-#define MAXSCREEN 512           /* print用バッファ */
+#define MAXSCREEN 512           /* print用バッファサイズ */
 
 typedef enum codes {            /* 命令語のコード                       */
     lit, opr, lod, sto, cal, ret, ict, jmp, jpc
@@ -25,6 +25,8 @@ typedef struct {
   int exitCode;               /* 終了状態かどうか */
   int stepCount;              /* 現在のステップ数 */
   char screen[MAXSCREEN];     /* print用バッファ */
+  int secretMode;             /* シークレットモード用 */
+  int secretValue;            /* シークレットモード用 */
 } Mem;
 
 int genCodeV(OpCode op, int v); /* 命令語の生成、アドレス部にv          */
@@ -37,9 +39,9 @@ int nextCode();                 /* 次の命令語のアドレスを返す      
 void listCode(FILE *fp, int showLineNumber); /* 目的コード（命令語）のリスティング */
 int readCode(FILE *fp);         /* 目的コード（命令語）の読み込み */
 
-void initMemory(Mem *m);
+void initMemory(Mem *m, const int *secretValue);
 void printMemory(const Mem *m);
 void stepForward(Mem *m);
 void stepBackward(Mem *m);
 
-void execute();                 /* 目的コード（命令語）の実行           */
+void execute(const int *secretValue);  /* 目的コード（命令語）の実行           */

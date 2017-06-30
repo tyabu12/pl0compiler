@@ -211,7 +211,7 @@ struct {
     return 0;
 }
 
-void initMemory(Mem *m) {          /* 目的コード（命令語）の実行メモリの初期化 */
+void initMemory(Mem *m, const int *secretValue) { /* 目的コード（命令語）の実行メモリの初期化 */
     int i;
     m->top = m->pc = 0;             /* top:次にスタックに入れる場所、pc:命令語のカウンタ */
     m->stack[0] = m->stack[1] = 0;  /* stack[top]はcalleeで壊すディスプレイの退避場所 */
@@ -222,6 +222,11 @@ void initMemory(Mem *m) {          /* 目的コード（命令語）の実行メ
     m->exitCode = 0;                /* 未終了状態 */
     m->stepCount = 0;               /* 初期ステップ数は 0 */
     for (i = 0;i < MAXSCREEN; i++) m->screen[i] = '\0';
+    if (secretValue) { /* シークレットモード */
+      m->stack[2] = *secretValue; /* 第3セルに値を格納 */
+      m->secretMode = 1;
+      m->secretValue = *secretValue;
+    }
 }
 
 void printMemory(const Mem *m) { /* 目的コード（命令語）の実行メモリの表示 */
@@ -246,7 +251,7 @@ void printMemory(const Mem *m) { /* 目的コード（命令語）の実行メ�
       if (i < MAXLEVEL && m->display[i] != -1) { /* ディスプレイの表示 */
         printf("\t%3d[%3d]", i, m->display[i]);
       } else printf("\t\t");
-      if (m->screen[screenIndex] != '\0') {
+      if (m->screen[screenIndex] != '\0') { /* スクリーンの表示 */
         printf("\t  ");
         while (m->screen[screenIndex] != '\0' && m->screen[screenIndex] != '\n') {
           putchar(m->screen[screenIndex++]);
@@ -308,7 +313,7 @@ void stepForward(Mem *m) {          /* 目的コード（命令語）の1ステ�
         case lseq: --top;  m->stack[top-1] = (m->stack[top-1] <= m->stack[top]); break;
         case greq: --top;  m->stack[top-1] = (m->stack[top-1] >= m->stack[top]); break;
         case rd:  printf("input number (rd):"); fflush(stdout); scanf("%d", &m->stack[top++]); break;
-        case wrt: strcpy(buf, m->screen); snprintf(m->screen, MAXSCREEN, "%s%d ", buf, m->stack[--top]); break;
+        case wrt: strcpy(buf, m->screen); snprintf(m->screen, MAXSCREEN, "%s%d", buf, m->stack[--top]); break;
         case wrl: strcpy(buf, m->screen); snprintf(m->screen, MAXSCREEN, "%s\n", buf); break;
         }
     }
@@ -320,15 +325,16 @@ void stepForward(Mem *m) {          /* 目的コード（命令語）の1ステ�
 
 void stepBackward(Mem *m) {     /* 目的コード（命令語）の1ステップ後退 */
   const int stepCount = m->stepCount;
+  const int secretMode = m->secretMode, secretValue = m->secretValue;
   if (stepCount == 0) return; /* これ以上後退できない */
-  initMemory(m);
+  initMemory(m, (secretMode ? &secretValue : NULL));
   while (m->stepCount != stepCount-1) stepForward(m); /* 1つ前のステップまで前進 */
 }
 
-void execute() {                /* 目的コード（命令語）の実行           */
+void execute(const int *secretValue) {    /* 目的コード（命令語）の実行           */
 #if 0
   static Mem m;
-  initMemory(&m);
+  initMemory(&m, secretValue);
   while (!m.exitCode) stepForward(&m);
 #else
     int stack[MAXMEM];          /* 実行時スタック                       */
@@ -339,6 +345,7 @@ void execute() {                /* 目的コード（命令語）の実行      
     top = 0;  pc = 0;           /* top:次にスタックに入れる場所、pc:命令語のカウンタ */
     stack[0] = 0;  stack[1] = 0; /* stack[top]はcalleeで壊すディスプレイの退避場所 */
                                 /* stack[top+1]はcallerへの戻り番地     */
+    if (secretValue) stack[2] = *secretValue; /* シークレットモード (第3セルに値を格納) */
     display[0] = 0;             /* 主ブロックの先頭番地は 0             */
     do {
         i = code[pc++];         /* これから実行する命令語               */
