@@ -211,19 +211,24 @@ struct {
     return 0;
 }
 
+int getCLength() { return cIndex; }
+
 void initMemory(Mem *m, const int *secretValue) { /* 目的コード（命令語）の実行メモリの初期化 */
     int i;
     m->top = m->pc = 0;             /* top:次にスタックに入れる場所、pc:命令語のカウンタ */
     m->stack[0] = m->stack[1] = 0;  /* stack[top]はcalleeで壊すディスプレイの退避場所 */
                                     /* stack[top+1]はcallerへの戻り番地 */
+    m->topMax = 1;
     for (i = 2; i < MAXMEM; i++) m->stack[i] = -1;
     m->display[0] = 0;              /* 主ブロックの先頭番地は 0 */
     for (i = 1; i < MAXLEVEL; i++) m->display[i] = -1;
     m->exitCode = 0;                /* 未終了状態 */
     m->stepCount = 0;               /* 初期ステップ数は 0 */
     for (i = 0;i < MAXSCREEN; i++) m->screen[i] = '\0';
+    m->breakPoint = -1;             /* ブレークポイントは未設定 */
     if (secretValue) { /* シークレットモード */
       m->stack[2] = *secretValue; /* 第3セルに値を格納 */
+      m->topMax = 2;
       m->secretMode = 1;
       m->secretValue = *secretValue;
     }
@@ -240,13 +245,17 @@ void printMemory(const Mem *m) { /* 目的コード（命令語）の実行メ�
       || (i < MAXLEVEL && m->display[i] != -1)
       || (m->screen[screenIndex] != '\0'); i++) {
       if (i < cIndex) { /* 目的コード（命令語）の表示 */
-        printf("%4d[", i);
+        printf("%c%3d[", (i == m->breakPoint ? '*' : ' '), i);
         printCode(stdout, i, '\0');
         printf("\t]");
         if (i == m->pc && !m->exitCode) printf("<-");
       } else printf("\t\t");
-      if (i < MAXMEM && m->stack[i] != -1) { /* スタックの表示 */
-        printf("\t%4d[%4d]", i, m->stack[i]);
+      if (i < MAXMEM && i <= m->topMax) { /* スタックの表示 */
+        if (m->stack[i] != -1)
+          printf("\t%4d[%4d]", i, m->stack[i]);
+        else
+          printf("\t%4d[----]", i);
+        if (i == m->top && !m->exitCode) printf("<-");
       } else printf("\t\t");
       if (i < MAXLEVEL && m->display[i] != -1) { /* ディスプレイの表示 */
         printf("\t%3d[%3d]", i, m->display[i]);
@@ -329,6 +338,10 @@ void stepBackward(Mem *m) {     /* 目的コード（命令語）の1ステッ�
   if (stepCount == 0) return; /* これ以上後退できない */
   initMemory(m, (secretMode ? &secretValue : NULL));
   while (m->stepCount != stepCount-1) stepForward(m); /* 1つ前のステップまで前進 */
+}
+
+void contForward(Mem *m) {
+  while (!m->exitCode && m->stepCount != m->breakPoint) stepForward(m);
 }
 
 void execute(const int *secretValue) {    /* 目的コード（命令語）の実行           */

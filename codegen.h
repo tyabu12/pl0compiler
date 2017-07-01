@@ -22,9 +22,11 @@ typedef struct {
   int display[MAXLEVEL];      /* 現在見える各ブロックの先頭番地のディスプレイ */
   int pc;                     /* 命令語のカウンタ */
   int top;                    /* 次にスタックに入れる場所 */
+  int topMax;                 /* スタックの使われた最大番地 */
   int exitCode;               /* 終了状態かどうか */
   int stepCount;              /* 現在のステップ数 */
   char screen[MAXSCREEN];     /* print用バッファ */
+  int breakPoint;             /* ブレークポイント */
   int secretMode;             /* シークレットモード用 */
   int secretValue;            /* シークレットモード用 */
 } Mem;
@@ -39,9 +41,12 @@ int nextCode();                 /* 次の命令語のアドレスを返す      
 void listCode(FILE *fp, int showLineNumber); /* 目的コード（命令語）のリスティング */
 int readCode(FILE *fp);         /* 目的コード（命令語）の読み込み */
 
+int getCLength();
+
 void initMemory(Mem *m, const int *secretValue);
 void printMemory(const Mem *m);
 void stepForward(Mem *m);
 void stepBackward(Mem *m);
+void contForward(Mem *m);
 
 void execute(const int *secretValue);  /* 目的コード（命令語）の実行           */

@@ -46,23 +46,38 @@ int main(int argc, char *argv[]) {
         quit = 0; /* 終了するか */
         update = 1; /* 更新があったか */
         while (!quit) {
-            if (update) { /* 更新があった場合のみ表示 */
-                update = 0;
-                printMemory(&memory);
-                if (memory.exitCode) /* 終了状態 */
-                    printf("b: step backward, q: quit\n");
-                else if (!memory.stepCount) /* 初期状態 */
-                    printf("f: step forward, q: quit\n");
-                else
-                    printf("f: step forward, b: step backward, q: quit\n");
+          if (update) { /* 更新があった場合のみ表示 */
+            if (memory.top > memory.topMax) memory.topMax = memory.top;
+            update = 0;
+            printMemory(&memory);
+            if (memory.exitCode) { /* 終了状態 */
+              /*printf("q: quit\n");*/
+              quit = 1; continue;
+            } else
+              printf("[ret] (step), c (cont.), b[0-%d] (set bp), q (quit)\n", getCLength()-1);
+          }
+          switch (getchar()) {
+          case 'b': 
+            scanf("%d ", &memory.breakPoint);
+            update = 1; break;
+          case 'q': quit = 1; break; /* 終了 */
+          case 'c':
+            while (1) {
+              stepForward(&memory); 
+              if (memory.top > memory.topMax) memory.topMax = memory.top;
+              printMemory(&memory);
+              if (memory.exitCode) { /* 終了状態 */
+                quit = 1; break;
+              } else if (memory.stepCount == memory.breakPoint-1)
+                break;
             }
-            switch (getchar()) {
-            case 'f': stepForward(&memory); update = 1; break;  /* 1 step 前進 */
-            case 'b': stepBackward(&memory); update = 1; break; /* 1 step 後退 */
-            case 'q': quit = 1; break; /* 終了 */
-            default: break;
-            }
+            break;
+          /*case 's':*/
+          default:
+            stepForward(&memory); update = 1; break;  /* 1 step 前進 */
+          }
         }
+        printf("[finished]\n");
     }
     fclose(fin);
     return 0;
