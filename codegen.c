@@ -237,7 +237,7 @@ void initMemory(Mem *m, const int *secretValue) { /* 目的コード（命令語
 void printMemory(const Mem *m) { /* 目的コード（命令語）の実行メモリの表示 */
     int screenIndex = 0, i;
     printf("\n\nsteps:%d pc:%d top:%d exitCode:%d\n", m->stepCount, m->pc, m->top, m->exitCode);
-    printf("----------------------------------------------\n");
+    printf("----------------------------------------------------------------\n");
     printf("Code:\t\t\tStack:\t\tDisplay:\tScreen:\n");
     for (i = 0;
       i < cIndex
@@ -269,7 +269,7 @@ void printMemory(const Mem *m) { /* 目的コード（命令語）の実行メ�
       }
       printf("\n");
     }
-    printf("----------------------------------------------\n");
+    printf("----------------------------------------------------------------\n");
 }
 
 void stepForward(Mem *m) {          /* 目的コード（命令語）の1ステップ前進 */
